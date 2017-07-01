@@ -53,6 +53,8 @@
     <Compile Include="Extensions\JsonExtensions.cs" />
     <Compile Include="Models\Evidence.cs" />
     <Compile Include="Models\Faction.cs" />
+    <Compile Include="Models\Hypothesis.cs" />
+    <Compile Include="Models\HypothesisEvidence.cs" />
     <Compile Include="Models\Reference.cs" />
     <Compile Include="Models\ViewPoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

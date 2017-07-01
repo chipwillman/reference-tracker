@@ -445,8 +445,13 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\EvidenceController.cs" />
+    <Compile Include="Controllers\FactionController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\HypothesisController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\ReferenceController.cs" />
+    <Compile Include="Controllers\ViewpointController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -474,6 +479,7 @@
     <Content Include="Scripts\HomePage.jsx" />
     <Content Include="Scripts\Faction.jsx" />
     <Content Include="Scripts\Hypotheses.jsx" />
+    <Content Include="Scripts\HypothesisEditor.jsx" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
@@ -525,10 +531,15 @@
     <Content Include="Scripts\Tutorial.jsx" />
     <Content Include="Scripts\Viewpoints.jsx" />
     <Content Include="Scripts\ViewpointEditor.jsx" />
+    <Content Include="Scripts\ReferenceFilter.jsx" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Evidence\" />
     <Folder Include="Views\Faction\" />
+    <Folder Include="Views\Hypothesis\" />
+    <Folder Include="Views\Reference\" />
+    <Folder Include="Views\Viewpoint\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

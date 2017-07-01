@@ -2,43 +2,49 @@
     ViewBag.Title = "Reference Tracker";
 }
 <div class="ReferenceChecker">
-        <div class="row">
-            <div class="col-md-4">
-                <h2>Factions</h2>
-                <p>
-                    <div id="factionContent"></div>
-                </p>
-            </div>
-            <div class="col-md-4">
-                <h2>Hypotheses</h2>
-                <div id="hypothesesContent"></div>
-                <p>Popular Hypotheses.</p>
-            </div>
-            <div class="col-md-4">
-                <h2>View Points</h2>
-                <div id="viewpointsContent"></div>
-                <p>Interpretations of the meaning of events.</p>
-            </div>
+    <div class="row">
+        <div class="col-md-4">
+            <h2>Factions</h2>
+            <p>
+                <div id="factionContent"></div>
+            </p>
         </div>
+        <div class="col-md-4">
+            <h2>Hypotheses</h2>
+            <div id="hypothesesContent"></div>
+            <p>Popular Hypotheses.</p>
+        </div>
+        <div class="col-md-4">
+            <h2>View Points</h2>
+            <div id="viewpointsContent"></div>
+            <p>Interpretations of the meaning of events.</p>
+        </div>
+    </div>
 
-        <div class="jumbotron">
-            <h1>Timeline of Events</h1>
-            <div id="timelineContent"></div>
-            <p class="lead">A view of events in ordered fashion</p>
-        </div>
-    Before Editor Content
+    <div>
+        <div id="referencesFilterContent"></div>
+    </div>
+
+    <div class="jumbotron">
+        <h1>Timeline of Events</h1>
+        <div id="timelineContent"></div>
+        <p class="lead">A view of events in ordered fashion</p>
+    </div>
     <div>
         <div id="viewpoitnEditorContent"></div>
-        After Editor Content
     </div>
-    After Editor Div
+    <div>
+        <div id="hypothesisEditorContent"></div>
+    </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.2/react.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.2/react-dom.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.1/remarkable.min.js"></script>
 <script src="@Url.Content("~/Scripts/EditorEvents.js")"></script>
 <script src="@Url.Content("~/Scripts/ViewpointEditor.jsx")"></script>
+<script src="@Url.Content("~/Scripts/HypothesisEditor.jsx")"></script>
 <script src="@Url.Content("~/Scripts/Faction.jsx")"></script>
 <script src="@Url.Content("~/Scripts/Hypotheses.jsx")"></script>
 <script src="@Url.Content("~/Scripts/Viewpoints.jsx")"></script>
+<script src="@Url.Content("~/Scripts/ReferenceFilter.jsx")"></script>
 

@@ -9,6 +9,6 @@ namespace RechData.Models
         public string Cite { get; set; }
         public string Type { get; set; }
         public decimal Confidence { get; set; }
-        public Guid ParrentReferenceId { get; set; }
+        public Guid ParentReferenceId { get; set; }
     }
 }

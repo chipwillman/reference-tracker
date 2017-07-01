@@ -17,43 +17,115 @@ namespace ReactReference
             routes.MapRoute(
                 name: "AddFaction",
                 url: "factions/new",
-                defaults: new { controller = "Home", action = "AddFaction" }
+                defaults: new { controller = "Faction", action = "AddFaction" }
             );
 
             routes.MapRoute(
                 name: "DeleteFaction",
                 url: "factions/delete",
-                defaults: new { controller = "Home", action = "DeleteFaction" }
+                defaults: new { controller = "Faction", action = "DeleteFaction" }
             );
 
             routes.MapRoute(
                 name: "Factions",
                 url: "factions",
-                defaults: new { controller = "Home", action = "Factions" }
+                defaults: new { controller = "Faction", action = "Factions" }
+            );
+
+            routes.MapRoute(
+                name: "AddHypothesis",
+                url: "hypotheses/new",
+                defaults: new { controller = "Hypothesis", action = "AddHypothesis" }
+            );
+
+            routes.MapRoute(
+                name: "DeleteHypothesis",
+                url: "hypotheses/delete",
+                defaults: new { controller = "Hypothesis", action = "DeleteHypothesis" }
+            );
+
+            routes.MapRoute(
+                name: "Hypotheses",
+                url: "hypotheses",
+                defaults: new { controller = "Hypothesis", action = "Hypotheses" }
+            );
+
+            routes.MapRoute(
+                name: "SingleHypothesis",
+                url: "hypotheses/{hypothesisId}",
+                defaults: new { controller = "Hypothesis", action = "Hypothesis" }
+            );
+
+            routes.MapRoute(
+                name: "AddReference",
+                url: "references/new",
+                defaults: new { controller = "Reference", action = "AddReference" }
+            );
+
+            routes.MapRoute(
+                name: "DeleteReference",
+                url: "references/delete",
+                defaults: new { controller = "Reference", action = "DeleteReference" }
+            );
+
+            routes.MapRoute(
+                name: "References",
+                url: "references",
+                defaults: new { controller = "Reference", action = "References" }
+            );
+
+            routes.MapRoute(
+                name: "SingleReferences",
+                url: "references/{hypothesisId}",
+                defaults: new { controller = "Reference", action = "Reference" }
             );
 
             routes.MapRoute(
                 name: "AddViewpoint",
                 url: "viewpoints/new",
-                defaults: new { controller = "Home", action = "AddViewpoint" }
+                defaults: new { controller = "Viewpoint", action = "AddViewpoint" }
             );
 
             routes.MapRoute(
                 name: "DeleteViewpoint",
                 url: "viewpoints/delete",
-                defaults: new { controller = "Home", action = "DeleteViewpoint" }
+                defaults: new { controller = "Viewpoint", action = "DeleteViewpoint" }
             );
 
             routes.MapRoute(
                 name: "ViewpointDetails",
                 url: "viewpoints/{viewpointId}",
-                defaults: new { controller = "Home", action = "Viewpoint" }
+                defaults: new { controller = "Viewpoint", action = "Viewpoint" }
             );
 
             routes.MapRoute(
                 name: "Viewpoints",
                 url: "viewpoints",
-                defaults: new { controller = "Home", action = "Viewpoints" }
+                defaults: new { controller = "Viewpoint", action = "Viewpoints" }
+            );
+
+            routes.MapRoute(
+                name: "AddEvidence",
+                url: "evidence/new",
+                defaults: new { controller = "Evidence", action = "AddEvidence" }
+            );
+
+            routes.MapRoute(
+                name: "DeleteEvidence",
+                url: "evidence/delete",
+                defaults: new { controller = "Evidence", action = "DeleteEvidence" }
+            );
+
+            routes.MapRoute(
+                name: "EvidenceDetails",
+                url: "evidence/{evidenceId}",
+                defaults: new { controller = "Evidence", action = "Evidence" }
+            );
+
+            routes.MapRoute(
+                name: "Evidences",
+                url: "evidence",
+                defaults: new { controller = "Evidence", action = "Evidences" }
             );
 
             routes.MapRoute(

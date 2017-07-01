@@ -16,7 +16,7 @@
             this.setState({ isSelected: false });
         }
     },
-    handleEditClick: function(e) {
+    handleEditViewpointClick: function(e) {
         EditorEvents.editViewPoint(this.props.ViewPointId);
     },
     handleDeleteClick: function(e) {
@@ -26,57 +26,49 @@
     render: function () {
         var divStyle = {
             background: '#008888',
-            padding: '10px'
+            padding: '10px',
+            margin: '10px'
         };
+        var controlBar = (
+            <input type="submit" value="View" onClick={this.handleEditViewpointClick} />
+            );
+        if (EditorEvents.isLoggedIn) {
+            controlBar = (
+                <div>
+                    <input type="submit" value="Delete" onClick={this.handleDeleteClick}/>
+                    <input type="submit" value="Edit" onClick={this.handleEditViewpointClick}/>
+                </div>
+            );
+        }
         if (this.state.isSelected  || this.state.hover_flag) {
             divStyle['background'] = "#008800";
         }
-        if (EditorEvents.isLoggedIn) {
-            return (
-                <div
-                    className="ViewpointBox"
-                    style={divStyle}
-                    onClick={this.clickHandler}
-                    onMouseEnter={this.hoverEvent}
-                    onMouseLeave={this.hoverEvent}>
-                    <h2>{this.props.name}</h2>
-                    <p>{this.props.children}</p>
-                    <input type="submit" value="Delete" onClick={this.handleDeleteClick}/>
-                    <input type="submit" value="Edit" onClick={this.handleEditClick} />
-                </div>
-            );
-        } else {
-            return (
-                <div
-                    className="ViewpointBox"
-                    style={divStyle}
-                    onClick={this.clickHandler}
-                    onMouseEnter={this.hoverEvent}
-                    onMouseLeave={this.hoverEvent}>
-                    <h2>{this.props.name}</h2>
-                    <p>{this.props.children}</p>
-                </div>
-            );
-        }
+        return (
+            <div
+                className="ViewpointBox"
+                style={divStyle}
+                onClick={this.clickHandler}
+                onMouseEnter={this.hoverEvent}
+                onMouseLeave={this.hoverEvent}>
+                <h3>{this.props.name}</h3>
+                <p>{this.props.children}</p>
+                {controlBar}
+            </div>
+        );
     }
 });
 
-ViewpointListItem.propTypes = {
-    onDeleteSubmit: React.PropTypes.object.isRequired
-}
-
 var ViewpointList = React.createClass({
-    render: function() {
+    render: function () {
+        var self = this;
         var ViewpointNodes = this.props.data.map(function (Viewpoint) {
             if (Viewpoint.ViewPointId !== '')
             {
                 return (
                 <ViewpointListItem ViewPointId={Viewpoint.ViewPointId}
-                                 onDeleteSubmit={Viewpoint.handleDeleteViewpointFromList}
+                                 onDeleteSubmit={self.props.onHandleDeleteViewpointFromList}
                                  key={Viewpoint.ViewPointId}
-                                 name={Viewpoint.Name}
-                                     
-                >
+                                 name={Viewpoint.Name} >
                     {Viewpoint.Description}
                 </ViewpointListItem>
             );
@@ -86,7 +78,7 @@ var ViewpointList = React.createClass({
                 );
         });
         return (
-            <div className="commentList">
+            <div className="ViewpointList" key="ViewpointList">
                 {ViewpointNodes}
             </div>
         );
@@ -95,7 +87,7 @@ var ViewpointList = React.createClass({
 
 var ViewpointForm = React.createClass({
     getInitialState: function () {
-        return { name: '', description: '' };
+        return { name: '', description: '', beginDate: '' };
     },
     handleNameChange: function (e) {
         this.setState({ name: e.target.value });
@@ -103,23 +95,32 @@ var ViewpointForm = React.createClass({
     handleDescriptionChange: function (e) {
         this.setState({ description: e.target.value });
     },
-    handleSubmit: function(e) {
+    handleBeginDateChange: function (e) {
+        this.setState({ beginDate: e.target.value });
+    },
+    handleSubmit: function (e) {
         e.preventDefault();
         var name = this.state.name.trim();
         var description = this.state.description.trim();
-        if (!name || !description) {
+        var beginDate = this.state.beginDate.trim();
+        if (!name || !description || !beginDate) {
             return;
         }
-        this.props.onViewpointSubmit({ Description: description, Name: name });
-        this.setState({ name: '', description: '' });
+        this.props.onViewpointSubmit({ Description: description, Name: name, BeginDate: beginDate });
+        this.setState({ name: '', description: '', beginDate: '' });
     },
     render: function () {
+        var textareaStyle = {
+            width: "347px",
+            height: "90px"
+        };
         return (
             <form className="ViewpointForm" onSubmit={this.handleSubmit}>
-                <input type="text" placeholder="Viewpoint Name" value={this.state.Name} onChange={this.handleNameChange}/>
-                <input type="submit" value="Add" />
+                <input type="text" placeholder="Viewpoint Name" value={this.state.name} onChange={this.handleNameChange} />
+                <input type="text" placeholder="Date" value={this.state.beginDate} onChange={this.handleBeginDateChange} />
+                <textarea style={textareaStyle} placeholder="Viewpoint Description..." value={this.state.Description} onChange={this.handleDescriptionChange}/>
                 <br />
-                <textarea placeholder="Viewpoint Description..." value={this.state.Description} onChange={this.handleDescriptionChange}/>
+                <input type="submit" value="Add" />
             </form>
         );
     }
@@ -134,9 +135,6 @@ var ViewpointBox = React.createClass({
         xhr.open('get', this.props.viewPointUrl, true);
         xhr.onload = function () {
             var data = JSON.parse(xhr.responseText);
-            for (var i = 0; i < data.length; i++) {
-                data[i].handleDeleteViewpointFromList = this.handleDeleteViewpointFromList;
-            }
             this.setState({ data: data });
         }.bind(this);
         xhr.send();
@@ -145,6 +143,7 @@ var ViewpointBox = React.createClass({
         var data = new FormData();
         data.append('Description', viewpoint.Description);
         data.append('Name', viewpoint.Name);
+        data.append('BeginDate', viewpoint.BeginDate);
 
         var xhr = new XMLHttpRequest();
         xhr.open('post', this.props.viewpointSubmitUrl, true);
@@ -175,10 +174,19 @@ var ViewpointBox = React.createClass({
         window.setInterval(this.loadViewpointsFromServer, this.props.pollInterval);
     },
     render: function () {
+        var addViewpointForm = (
+            <p>Log in to add a viewpoint</p>
+        );
+        if (EditorEvents.isLoggedIn) {
+            addViewpointForm = (
+                <ViewpointForm onViewpointSubmit={this.handleViewpointSubmit} />
+            );
+        } 
+
         return (
-            <div className="viewpointList">
-                <ViewpointList data={this.state.data} />
-                <ViewpointForm onviewpointSubmit={this.handleViewpointSubmit} />
+            <div className="ViewpointList">
+                <ViewpointList data={this.state.data} onHandleDeleteViewpointFromList={this.handleDeleteViewpointFromList} />
+                {addViewpointForm}
             </div>
         );
         

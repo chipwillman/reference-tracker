@@ -18,12 +18,22 @@
     },
     handleDeleteClick: function(e) {
         e.preventDefault();
-        this.props.onDeleteSubmit({ FactionId: this.props.factionId });
+        this.props.onDeleteSubit({ FactionId: this.props.factionId });
     },
     render: function () {
+        var deleteFactionItem = (
+            null
+        );
+        if (EditorEvents.isLoggedIn) {
+            deleteFactionItem = (
+                <input type="submit" value="Delete" onClick={this.handleDeleteClick} />
+            );
+        } 
+
         var divStyle = {
             background: '#008888',
-            padding: '10px'
+            padding: '10px',
+            margin: '10px'
         };
         if (this.state.isSelected  || this.state.hover_flag) {
             divStyle['background'] = "#008800";
@@ -35,34 +45,39 @@
                      onClick={this.clickHandler} 
                      onMouseEnter={this.hoverEvent}
                      onMouseLeave={this.hoverEvent}>
-                    <h2>{this.props.name}</h2>
+                    <h3>{this.props.name}</h3>
                     <p>{this.props.children}</p>
-                    <input type="submit" value="Delete" onClick={this.handleDeleteClick} />
+                    {deleteFactionItem}
                 </div>
             );
     }
 });
 
-FactionListItem.propTypes = {
-    onDeleteSubmit: React.PropTypes.object.isRequired
-}
-
 var FactionList = React.createClass({
-    render: function() {
-        var factionNodes = this.props.data.map(function (faction) {
-            return (
+    render: function () {
+        var self = this;
+        var factionNodes = (
+            null
+            );
+        if (self.props.onDeleteFactionFromList !== null) {
+            if (this.props.data && this.props.data[0] !== 0)
+            factionNodes = this.props.data.map(function(faction) {
+                return (
                     <FactionListItem factionId={faction.FactionId}
-                                     onDeleteSubmit={faction.handleDeleteFactionFromList}
-                                     key={faction.FactionId}
-                                     name={faction.Name}
-                                     
-                                     >
+                                        onDeleteSubmit={self.props.onDeleteFactionFromList}
+                                        key={faction.FactionId}
+                                        name={faction.Name}>
                         {faction.Description}
                     </FactionListItem>
                 );
             });
+        } else {
+            return (
+                <p>onDeleteFactionFromList was null?</p>
+                );
+        }
         return (
-        <div className="commentList">
+        <div className="FactionList" key="FactionList">
             {factionNodes}
         </div>
         );
@@ -93,25 +108,22 @@ var FactionForm = React.createClass({
         return (
             <form className="factionForm" onSubmit={this.handleSubmit}>
                 <input type="text" placeholder="Faction Name" value={this.state.Name} onChange={this.handleNameChange}/>
-                <input type="submit" value="Add" />
-                <br />
                 <textarea placeholder="Faction Description..." value={this.state.Description} onChange={this.handleDescriptionChange}/>
+                <br />
+                <input type="submit" value="Add" />
             </form>
         );
     }
 });
 
 var FactionBox = React.createClass({
-    loadViewPointsFromServer: function () {
+    loadFactionsFromServer: function () {
         var xhr = new XMLHttpRequest();
         xhr.open('get', this.props.url, true);
         xhr.onload = function () {
             var data = JSON.parse(xhr.responseText);
-            for (var i = 0; i < data.length; i++)
-            {
-                data[i].handleDeleteFactionFromList = this.handleDeleteFactionFromList;
-            }
             this.setState({ data: data });
+            EditorEvents.factions = data;
         }.bind(this);
         xhr.send();
     },
@@ -123,7 +135,7 @@ var FactionBox = React.createClass({
         var xhr = new XMLHttpRequest();
         xhr.open('post', this.props.submitUrl, true);
         xhr.onload = function () {
-            this.loadViewPointsFromServer();
+            this.loadFactionsFromServer();
         }.bind(this);
         xhr.send(data);
     },
@@ -135,7 +147,7 @@ var FactionBox = React.createClass({
             var xhr = new XMLHttpRequest();
             xhr.open('post', this.props.deleteUrl, true);
             xhr.onload = function () {
-                this.loadViewPointsFromServer();
+                this.loadFactionsFromServer();
             }.bind(this);
             xhr.send(data);
         }
@@ -145,15 +157,23 @@ var FactionBox = React.createClass({
         return { data: [0] };
     },
     componentWillMount: function () {
-        this.loadViewPointsFromServer();
-        window.setInterval(this.loadViewPointsFromServer, this.props.pollInterval);
+        this.loadFactionsFromServer();
+        window.setInterval(this.loadFactionsFromServer, this.props.pollInterval);
     },
 
     render: function () {
+        var factionForm = (
+            <p>Log in to add a faction</p>
+        );
+        if (EditorEvents.isLoggedIn) {
+            factionForm = (
+                <FactionForm onFactionSubmit={this.handleFactionSubmit} />
+                );
+        } 
         return (
             <div className="factionList">
                 <FactionList data={this.state.data} onDeleteFactionFromList={this.handleDeleteFactionFromList} />
-                <FactionForm onFactionSubmit={this.handleFactionSubmit} />
+                {factionForm}
             </div>
             );
         
