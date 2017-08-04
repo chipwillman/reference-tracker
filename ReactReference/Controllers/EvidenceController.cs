@@ -40,5 +40,12 @@ namespace ReactReference.Controllers
             new SqlRepository().DeleteEvidence(evidence);
             return Content("Evidence Deleted");
         }
+
+        [HttpPost]
+        public ActionResult SaveEvidence(Evidence evidence)
+        {
+            new SqlRepository().SaveEvidence(evidence);
+            return Content("Evidence Saved");
+        }
     }
 }

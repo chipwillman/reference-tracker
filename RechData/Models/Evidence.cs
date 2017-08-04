@@ -13,5 +13,11 @@ namespace RechData.Models
         public Guid? ReferenceId { get; set; }
         public decimal Importance { get; set; }
         public string Statement { get; set; }
+        public string UrlLinks { get; set; }
+        public string ReferenceName { get; set; }
+        public string Cite { get; set; }
+        public string Type { get; set; }
+        public decimal Confidence { get; set; }
+        public Guid ParentReferenceId { get; set; }
     }
 }

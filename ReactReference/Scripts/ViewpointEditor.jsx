@@ -1,10 +1,170 @@
 ﻿var ViewpointEvidenceListItem = React.createClass({
-    render: function() {
-        return (
+    getInitialState: function () {
+        return { editDetails: false, moreDetails: false };
+    },
+    handleEditClick: function() {
+        this.setState({ editDetails: true });
+    },
+    handleDeleteClick: function () {
+        if (confirm("Really delete this evidence?")) {
+            this.setState({ editDetails: false });
+            var data = new FormData();
+            data.append('EvidenceId', this.props.evidenceId);
+            if (this.props.submitDeleteEvidenceUrl) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('post', this.props.submitDeleteEvidenceUrl, true);
+                xhr.onload = function () {
+                    if (this.props.onEvidenceChanged) {
+                        this.props.onEvidenceChanged();
+                    }
+                }.bind(this);
+                xhr.send(data);
+            }
+        }
+    },
+    handleSaveClick: function () {
+        this.setState({ editDetails: false });
+        var data = new FormData();
+        var evidenceId = this.props.evidenceId;
+        var referenceId = this.state.referenceId || this.props.referenceId;
+        var name = this.state.name || this.props.name;
+        var status = this.state.status || this.props.status;
+        var statement = this.state.statement || this.props.statement;
+        var urlLinks = this.state.urlLinks || this.props.urlLinks;
+
+        if (evidenceId && referenceId && status && statement) {
+            data.append('EvidenceId', evidenceId);
+            data.append('ReferenceId', referenceId);
+            data.append('Name', name);
+            data.append('Status', status);
+            data.append('Statement', statement);
+            data.append('UrlLinks', urlLinks);
+            if (this.props.submitSaveEvidenceUrl) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('post', this.props.submitSaveEvidenceUrl, true);
+                xhr.onload = function () {
+                    if (this.props.onEvidenceChanged) {
+                        this.props.onEvidenceChanged();
+                    }
+                }.bind(this);
+                xhr.send(data);
+            }
+
+
+        }
+    },
+    handleMoreClick: function() {
+        this.setState({ moreDetails: true });
+    },
+    handleLessClick: function () {
+        this.setState({ moreDetails: false });
+    },
+    handleCancelClick: function() {
+        this.setState({ editDetails: false });
+    },
+    handleReferenceChanged: function(e) {
+        this.setState({ evidenceId: e.target.value });
+    },
+    handleNameChanged: function(e) {
+        this.setState({ name: e.target.value });
+    },
+    handleStatementChanged: function (e) {
+        this.setState({ statement: e.target.value });
+    },
+    handleUrlLinksChanged: function (e) {
+        this.setState({ urlLinks: e.target.value });
+    },
+    render: function () {
+        var editControls = (
             <div>
-                <h4>{this.props.name}</h4>
-                {this.props.statement}
+                <input type="submit" value="More" onClick={this.handleMoreClick} />
             </div>
+        );
+        if (this.state.moreDetails) {
+            editControls = (
+                <div>
+                    <input type="submit" value="More" onClick={this.handleMoreClick} />
+                    <input type="submit" value="Less" onClick={this.handleLessClick} />
+                </div>
+                );
+        }
+        if (EditorEvents.isLoggedIn) {
+            if (this.state.moreDetails) {
+                editControls = (
+                    <div>
+                        <input type="submit" value="Edit" onClick={this.handleEditClick}/>
+                        <input type="submit" value="Less" onClick={this.handleLessClick} />
+                    </div>
+                );
+            } else {
+                editControls = (
+                    <div>
+                        <input type="submit" value="Edit" onClick={this.handleEditClick} />
+                        <input type="submit" value="More" onClick={this.handleMoreClick} />
+                    </div>
+                    );
+            }
+
+        }
+        var moreControls = null;
+        if (this.state.moreDetails) {
+            var referenceType = EditorEvents.getReferenceType(this.props.type);
+            moreControls = (
+                <div>
+                    Type: {referenceType}
+                    <br />
+                    Name: {this.props.name}
+                    <br />
+                    Cite: {this.props.cite}
+                    <br />
+                    Confidence: {this.props.confidence}
+                    <br />
+                </div>
+            );
+        }
+        var renderedControls = (
+                <div>
+                    <h4>{this.props.name}</h4>
+                    {this.props.statement}
+                    <br/>
+                    <a target="new" href={this.props.urlLinks}>{this.props.urlLinks}</a>
+                    {moreControls}
+                    {editControls}
+                </div>
+            );
+        if (this.state.editDetails) {
+            var referenceOptions = EditorEvents.references.map(function (reference) {
+                return <option key={`evidenceReferenceOption_${reference.ReferenceId}`} value={reference.ReferenceId}>{reference.Name}</option>;
+            });
+            renderedControls = (
+                <div>
+                    Source Name
+                    <br />
+                    <input type="text" defaultValue={this.props.name} onChange={this.handleNameChanged}/>
+                    <br />
+                    Statement
+                    <br />
+                    <textarea defaultValue={this.props.statement} onChange={this.handleStatementChanged}/>
+                    <br />
+                    <p>Urls</p>
+                    <input type="text" defaultValue={this.props.urlLinks} onChange={this.handleUrlLinksChanged}/>
+                    <br />
+                    Reference Details. Edit in reference editor
+                    <br />
+                    <select defaultValue={this.props.referenceId} onChange={this.handleReferenceChanged} >
+                        {referenceOptions}
+                    </select>
+                    <br />
+                    <input type="submit" value="Cancel" onClick={this.handleCancelClick} />
+                    <input type="submit" value="Save" onClick={this.handleSaveClick} />
+                    <input type="submit" value="Delete" onClick={this.handleDeleteClick} />
+                </div>
+                );
+        }
+        return (
+        <div className="viewpointEvidence">
+            {renderedControls}
+        </div>
         );
     }
 });
@@ -27,16 +187,17 @@ var ViewpointEvidenceForm = React.createClass({
         data.append('Confidence', this.state.confidence);
         data.append('ViewpointId', this.props.viewpointId);
 
-        var xhr = new XMLHttpRequest();
-        xhr.open('post', this.props.submitReferenceUrl, true);
-        xhr.onload = function(e) {
-            if (e.currentTarget.response) {
-                this.setState({ referenceId: e.currentTarget.response.replace("\"", "").replace("\"", "") });
-                this.saveEvidence();
-            }
-        }.bind(this);
-        xhr.send(data);
-
+        if (this.props.submitReferenceUrl) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('post', this.props.submitReferenceUrl, true);
+            xhr.onload = function(e) {
+                if (e.currentTarget.response) {
+                    this.setState({ referenceId: e.currentTarget.response.replace("\"", "").replace("\"", "") });
+                    this.saveEvidence();
+                }
+            }.bind(this);
+            xhr.send(data);
+        }
     },
     saveEvidence: function() {
         var data = new FormData();
@@ -48,16 +209,20 @@ var ViewpointEvidenceForm = React.createClass({
         data.append('Importance', this.state.importance);
         data.append('Statement', this.state.statement);
 
-        var xhr = new XMLHttpRequest();
-        xhr.open('post', this.props.submitEvidenceUrl, true);
-        xhr.onload = function (e) {
-            if (e.currentTarget.response) {
-                this.setState({ referenceId: '', statement: '' });
-                this.setReferenceFields();
-                this.props.onEvidenceChanged();
-            }
-        }.bind(this);
-        xhr.send(data);
+        if (this.props.submitEvidenceUrl) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('post', this.props.submitEvidenceUrl, true);
+            xhr.onload = function(e) {
+                if (e.currentTarget.response) {
+                    this.setState({ referenceId: '', statement: '' });
+                    this.setReferenceFields();
+                    if (this.props.onEvidenceChanged) {
+                        this.props.onEvidenceChanged();
+                    }
+                }
+            }.bind(this);
+            xhr.send(data);
+        }
     },
     handleSubmit: function(e) {
         e.preventDefault();
@@ -68,7 +233,8 @@ var ViewpointEvidenceForm = React.createClass({
         var status = this.state.name.trim();
         var factionId = this.state.factionId;
         var importance = this.state.importance;
-        if (!statement || !cite || !name)
+        if (!statement || !cite || !name ||
+            !factionId || !status || importance)
             return;
         if (referenceId === "" || referenceId == undefined) {
             this.saveEvidenceWithNewReference();
@@ -78,6 +244,9 @@ var ViewpointEvidenceForm = React.createClass({
     },
     handleStatementChanged: function(e) {
         this.setState({ statement: e.target.value });
+    },
+    handleUrlLinksChanged: function (e) {
+        this.setState({ urlLinks: e.target.value });
     },
     setReferenceFields: function(referenceId) {
         var reference = EditorEvents.findReference(referenceId);
@@ -135,32 +304,7 @@ var ViewpointEvidenceForm = React.createClass({
         var factions = EditorEvents.factions.map(function(faction) {
             return <option key={`evidencefaction_${faction.FactionId}`} value={faction.FactionId }>{faction.Name}</option>;
         });
-        var opts = {};
-        if (this.state.editReferenceFields) {
-            opts['readOnly'] = 'readOnly';
-        }
-        var referenceType = "Publicly Sourced/Debated";
-        switch (this.state.type) {
-        case "100":
-            referenceType = "PR Scientific Article";
-            break;
-        case "90":
-            referenceType = "Scientific Journal";
-            break;
-        case "80":
-            referenceType = "Live Video Evidence";
-            break;
-        case "60":
-            referenceType = "Well Sourced Article";
-            break;
-        case "40":
-            referenceType = "ReligousText";
-            break;
-        case "20":
-            referenceType = "Anonymous Source Journalism";
-            break;
-        }
-
+        var referenceType = EditorEvents.getReferenceType(this.state.type);
         var referenceDetails = (
             <div>
                 Type: {referenceType}
@@ -221,12 +365,19 @@ var ViewpointEvidenceEditor = React.createClass({
             {
                 return (
                     <ViewpointEvidenceListItem viewpointId={self.props.viewpointId}
-                                               onDeleteSubmit={self.props.onHandleDeleteViewpointFromList}
-                                               key={viewpointEvidence.viewpointEvidenceId}
+                                               referenceId={viewpointEvidence.ReferenceId}
+                                               key={viewpointEvidence.EvidenceId}
+                                               evidenceId={viewpointEvidence.EvidenceId}
                                                name={viewpointEvidence.Name} 
                                                status={viewpointEvidence.Status}
-                                               description={viewpointEvidence.description}
-                                               statement={viewpointEvidence.statement}
+                                               statement={viewpointEvidence.Statement}
+                                               cite={viewpointEvidence.Cite}
+                                               confidence={viewpointEvidence.Confidence}
+                                               type={viewpointEvidence.Type}
+                                               urlLinks={viewpointEvidence.UrlLinks}
+                                               submitDeleteEvidenceUrl={self.props.submitDeleteEvidenceUrl}
+                                               submitSaveEvidenceUrl={self.props.submitSaveEvidenceUrl}
+                                               onEvidenceChanged={self.props.onEvidenceChanged}
                                                />
                 );
             }
@@ -235,12 +386,10 @@ var ViewpointEvidenceEditor = React.createClass({
             );
         });
         var viewpointEvidenceForm = null;
-        //references={this.props.references}
         if (EditorEvents.isLoggedIn) {
             viewpointEvidenceForm = (
                 <ViewpointEvidenceForm onEvidenceChanged={this.props.onEvidenceChanged}
                                        viewpointId={this.props.viewpointId} 
-                                       evidence={this.props.evidence} 
                                        submitReferenceUrl={this.props.submitReferenceUrl}
                                        submitEvidenceUrl={this.props.submitEvidenceUrl}>
                                        </ViewpointEvidenceForm>
@@ -248,8 +397,10 @@ var ViewpointEvidenceEditor = React.createClass({
         }
         return (
             <div>
-                <p>References</p>
+                <p>Reference Evidence</p>
+                <hr />
                 {viewpointReferenceNodes}
+                <hr />
                 {viewpointEvidenceForm}
             </div>
             );
@@ -261,24 +412,47 @@ var ViewpointEditor = React.createClass({
         return { show: false, viewpointId: '', editDetails: false, editorViewpoint: { Name: 'Loading', Evidence: [], References: [] } };
     },
     CancelEdit(e) {
-        this.setState({ show: false, editDetails: false });
+        this.setState({ editDetails: false });
+    },
+    CloseEdit(e) {
+        this.setState({ show: false });
     },
     SaveViewPoint(e) {
         this.setState({ editDetails: false });
         //TODO Save Viewpoint Changes
     },
+    DeleteViewpoint: function () {
+        if (confirm("Really delete this viewpoint?")) {
+            this.setState({ editDetails: false });
+            var data = new FormData();
+            data.append('ViewPointId', this.state.viewpointId);
+            if (this.props.submitDeleteViewpointUrl) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('post', this.props.submitDeleteViewpointUrl, true);
+                xhr.onload = function () {
+                    this.CloseEdit();
+                }.bind(this);
+                xhr.send(data);
+            }
+        }
+    },
     EditButtonClick(e) {
         this.setState({ editDetails: true });
     },
+    SetViewpoint(viewpoint) {
+        this.setState({ editorViewpoint: viewpoint });
+    },
     LoadViewpoint(viewpointId) {
-        var xhr = new XMLHttpRequest();
-        var address = this.props.viewPointUrl + "/" + viewpointId;
-        xhr.open('get', address, true);
-        xhr.onload = function() {
-            var viewpoint = JSON.parse(xhr.responseText);
-            this.setState({ editorViewpoint: viewpoint });
-        }.bind(this);
-        xhr.send();
+        if (this.props.viewPointUrl) {
+            var xhr = new XMLHttpRequest();
+            var address = this.props.viewPointUrl + "/" + viewpointId;
+            xhr.open('get', address, true);
+            xhr.onload = function() {
+                var viewpoint = JSON.parse(xhr.responseText);
+                this.SetViewpoint(viewpoint);
+            }.bind(this);
+            xhr.send();
+        }
     },
     EditViewPoint(viewpointId) {
         this.setState({ viewpointId: viewpointId });
@@ -326,9 +500,10 @@ var ViewpointEditor = React.createClass({
             <div>
                 <ViewpointEvidenceEditor onEvidenceChanged={this.HandleEvidenceChanged}
                                          viewpointId={this.state.viewpointId} 
-                                        editorViewpoint = { this.state.editorViewpoint } 
-                                        submitReferenceUrl={this.props.submitReferenceUrl}
-                                        submitEvidenceUrl={this.props.submitEvidenceUrl}
+                                         editorViewpoint = { this.state.editorViewpoint } 
+                                         submitReferenceUrl={this.props.submitReferenceUrl}
+                                         submitDeleteEvidenceUrl={this.props.submitDeleteEvidenceUrl}
+                                         submitSaveEvidenceUrl={this.props.submitSaveEvidenceUrl}
                                          />
             </div>
             );
@@ -350,28 +525,41 @@ var ViewpointEditor = React.createClass({
                 );
         }
         var editViewpointControls = (
-            <button onClick={this.CancelEdit}>
+            <button onClick={this.CloseEdit}>
                 Close
             </button>
         );
         if (EditorEvents.isLoggedIn) {
-            editViewpointControls = (
-                <div>
-                    <button onClick={this.EditButtonClick}>
-                        Edit
-                    </button>
-                    <button onClick={this.CancelEdit}>
-                        Cancel
-                    </button>
-                    <button onClick={this.SaveViewPoint}>
-                        Save
-                    </button>
-                </div>
-            );
+            if (this.state.editDetails) {
+                editViewpointControls = (
+                    <div>
+                        <button onClick={this.CancelEdit}>
+                            Cancel
+                        </button>
+                        <button onClick={this.SaveViewPoint}>
+                            Save
+                        </button>
+                        <button onClick={this.DeleteViewpoint}>
+                            Delete
+                        </button>
+                    </div>
+                );
+            } else {
+                editViewpointControls = (
+                    <div>
+                        <button onClick={this.EditButtonClick}>
+                            Edit
+                        </button>
+                        <button onClick={this.CloseEdit}>
+                            Close
+                        </button>
+                    </div>
+                );
+            }
         } 
         return (
             <div>
-            <div className="backdrop" style={backdropStyle}>
+            <div className="backdrop" style={backdropStyle} onClick={this.CloseEdit}>
             </div>
             <div className="modal" style={modalStyle}>
                 {contentPanel}
@@ -385,12 +573,3 @@ var ViewpointEditor = React.createClass({
     }
 });
 
-ReactDOM.render(
-    <ViewpointEditor 
-                     viewPointUrl="viewpoints" 
-                     submitViewpointUrl="viewpoint/save" 
-                     submitReferenceUrl="references/new" 
-                     submitEvidenceUrl="evidence/new" 
-                     deleteUrl="viewpoint/delete" />,
-    document.getElementById('viewpoitnEditorContent')
-);

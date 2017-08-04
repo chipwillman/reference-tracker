@@ -20,5 +20,10 @@
 input,
 select,
 textarea {
-    max-width: 860px;
+    max-width: 1280px;
 }
+
+div.viewpointEvidence input[type=text],textarea {
+    min-width: 100%;
+}
+

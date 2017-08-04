@@ -111,6 +111,12 @@ namespace ReactReference
             );
 
             routes.MapRoute(
+                name: "SaveEvidence",
+                url: "evidence/save",
+                defaults: new { controller = "Evidence", action = "SaveEvidence" }
+            );
+
+            routes.MapRoute(
                 name: "DeleteEvidence",
                 url: "evidence/delete",
                 defaults: new { controller = "Evidence", action = "DeleteEvidence" }

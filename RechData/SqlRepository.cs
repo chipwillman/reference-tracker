@@ -191,19 +191,15 @@ SELECT
     Evidence.FactionId,
     Evidence.ReferenceId,
     Evidence.Importance,
-    Evidence.Statement
-FROM Evidence 
-WHERE Evidence.ViewPointID = @pk
-
-SELECT 
-    Reference.ReferenceId,
-    RTRIM(Reference.Name) as Name,
+    Evidence.Statement,
+    RTRIM(Evidence.UrlLinks) as UrlLinks,
+    RTRIM(Reference.Name) as ReferenceName,
     RTRIM(Reference.Cite) as Cite,
     RTRIM(Reference.Type) as Type,
     Reference.Confidence,
     Reference.ParentReferenceId
-FROM Reference 
-JOIN Evidence ON Evidence.ReferenceId = Reference.ReferenceId
+FROM Evidence 
+JOIN Reference ON Evidence.ReferenceId = Reference.ReferenceId
 WHERE Evidence.ViewPointID = @pk
 ";
                 var gridReader = connection.QueryMultiple(sql, new { pk = pk});
@@ -211,7 +207,6 @@ WHERE Evidence.ViewPointID = @pk
                 if (result != null)
                 {
                     result.Evidence = gridReader.Read<Evidence>().ToArray();
-                    result.References = gridReader.Read<Reference>().ToArray();
                 }
                 return result;
             }
@@ -228,7 +223,7 @@ SELECT
     RTRIM(Name) as Name,
     Description,
     FactionId
-FROM Hypothesis WHERE ViewPointID = @pk;
+FROM Hypothesis WHERE HypothesisID = @pk;
 
 SELECT 
     HypothesisEvidence.HypothesisEvidenceId,
@@ -240,21 +235,17 @@ SELECT
     Evidence.ReferenceId,
     Evidence.Importance,
     Evidence.Statement as EvidenceStatement,
-    HypothesisEvidence.Statement as HypothesisStatement
-FROM Evidence 
-JOIN HypothesisEvidence ON HypothesisEvidence.EvidenceId = Evidence.EvidenceId
-WHERE HypothesisEvidence.HypothesisID = @pk
-
-SELECT 
-    Reference.ReferenceId,
-    RTRIM(Reference.Name) as Name,
+    HypothesisEvidence.Statement as HypothesisStatement,
+    RTRIM(Evidence.UrlLinks) as EvidenceUrlLinks,
+    RTRIM(HypothesisEvidence.UrlLinks) as UrlLinks,
+    RTRIM(Reference.Name) as ReferenceName,
     RTRIM(Reference.Cite) as Cite,
     RTRIM(Reference.Type) as Type,
     Reference.Confidence,
     Reference.ParentReferenceId
-FROM Reference 
-JOIN Evidence ON Evidence.ReferenceId = Reference.ReferenceId
+FROM Evidence 
 JOIN HypothesisEvidence ON HypothesisEvidence.EvidenceId = Evidence.EvidenceId
+JOIN Reference ON Evidence.ReferenceId = Reference.ReferenceId
 WHERE HypothesisEvidence.HypothesisID = @pk
 ";
                 var gridReader = connection.QueryMultiple(sql, new { pk = pk });
@@ -262,7 +253,7 @@ WHERE HypothesisEvidence.HypothesisID = @pk
                 if (result != null)
                 {
                     result.Evidence = gridReader.Read<HypothesisEvidence>().ToArray();
-                    result.References = gridReader.Read<Reference>().ToArray();
+                    //result.References = gridReader.Read<Reference>().ToArray();
                 }
                 return result;
             }
@@ -431,5 +422,31 @@ VALUES
             return false;
         }
 
+        public bool SaveEvidence(Evidence evidence)
+        {
+            using (var connection = new SqlConnection(System.Configuration.ConfigurationManager
+                .ConnectionStrings["DefaultConnection"].ConnectionString))
+            {
+                string sql = @"UPDATE 
+    Evidence 
+SET 
+    Name = @Name,
+    Status = @Status,
+    ReferenceId = @ReferenceId,
+    Importance = @Importance,
+    Statement = @Statement,
+    UrlLinks = @UrlLinks
+WHERE
+    EvidenceId = @EvidenceId
+;";
+
+                var rowsAffected = connection.Query<int>(sql, evidence).SingleOrDefault();
+                if (rowsAffected > 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

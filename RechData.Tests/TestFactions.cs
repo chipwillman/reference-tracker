@@ -10,6 +10,7 @@ namespace RechData.Tests
         [TestMethod]
         public void TestFactionById()
         {
+
         }
     }
 }

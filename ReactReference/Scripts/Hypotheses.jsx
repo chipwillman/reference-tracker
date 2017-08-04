@@ -78,7 +78,7 @@ var HypothesisList = React.createClass({
             );
         });
         return (
-            <div className="commentList">
+            <div className="HypothesisList">
                 {HypothesisNodes}
             </div>
         );
@@ -137,13 +137,15 @@ var HypothesisForm = React.createClass({
 
 var HypothesisBox = React.createClass({
     loadHypothesissFromServer: function () {
-        var xhr = new XMLHttpRequest();
-        xhr.open('get', this.props.hypothesisUrl, true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            this.setState({ data: data });
-        }.bind(this);
-        xhr.send();
+        if (this.props.hypothesisUrl) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('get', this.props.hypothesisUrl, true);
+            xhr.onload = function() {
+                var data = JSON.parse(xhr.responseText);
+                this.setState({ data: data });
+            }.bind(this);
+            xhr.send();
+        }
     },
     handleHypothesisSubmit: function (hypothesis) {
         var data = new FormData();
@@ -151,24 +153,27 @@ var HypothesisBox = React.createClass({
         data.append('Name', hypothesis.Name);
         data.append('FactionId', hypothesis.FactionId);
 
-        var xhr = new XMLHttpRequest();
-        xhr.open('post', this.props.hypothesisSubmitUrl, true);
-        xhr.onload = function () {
-            this.loadHypothesissFromServer();
-        }.bind(this);
-        xhr.send(data);
+        if (this.props.hypothesisSubmitUrl) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('post', this.props.hypothesisSubmitUrl, true);
+            xhr.onload = function() {
+                this.loadHypothesissFromServer();
+            }.bind(this);
+            xhr.send(data);
+        }
     },
     handleDeleteHypothesisFromList: function (hypothesis) {
         if (confirm("Really delete this hypothesis?")) {
             var data = new FormData();
             data.append('HypothesisId', hypothesis.HypothesisId);
-
-            var xhr = new XMLHttpRequest();
-            xhr.open('post', this.props.deleteUrl, true);
-            xhr.onload = function () {
-                this.loadHypothesissFromServer();
-            }.bind(this);
-            xhr.send(data);
+            if (this.props.deleteUrl) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('post', this.props.deleteUrl, true);
+                xhr.onload = function() {
+                    this.loadHypothesissFromServer();
+                }.bind(this);
+                xhr.send(data);
+            }
         }
     },
 
@@ -177,7 +182,9 @@ var HypothesisBox = React.createClass({
     },
     componentWillMount: function () {
         this.loadHypothesissFromServer();
-        window.setInterval(this.loadHypothesissFromServer, this.props.pollInterval);
+        if (this.props.pollInterval) {
+            window.setInterval(this.loadHypothesissFromServer, this.props.pollInterval);
+        }
     },
     render: function () {
         var addHypothesisForm = (
@@ -200,7 +207,3 @@ var HypothesisBox = React.createClass({
 });
 
 
-ReactDOM.render(
-    <HypothesisBox hypothesisUrl="hypotheses" hypothesisSubmitUrl="hypotheses/new" deleteUrl="hypotheses/delete" pollInterval={20000} />,
-    document.getElementById('hypothesesContent')
-);

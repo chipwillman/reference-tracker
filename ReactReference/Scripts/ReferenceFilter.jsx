@@ -1,26 +1,98 @@
-﻿var ReferenceListItem = React.createClass({
+﻿var ReferenceListItemView = React.createClass({
+    render: function () {
+        return (
+            <div>
+                <b>{this.props.name}</b>
+                <br />
+                {this.props.cite}
+            </div>
+        );
+    }
+});
+
+var ReferenceListItemEdit = React.createClass({
+    handleNameChanged : function(e) {
+        this.props.onReferenceItemNameChanged(e);
+    },
+    handleCiteChanged: function(e) {
+        this.props.onReferenceItemCiteChanged(e);
+    },
+    render: function () {
+        return (
+            <div>
+                <input type="text" defaultValue={this.props.name} onChange={this.handleNameChanged} />
+                <br />
+                <textarea defaultValue={this.props.cite} onChange={this.handleCiteChanged} />
+            </div>
+        );
+    }
+});
+
+var ReferenceListItem = React.createClass({
+    getInitialState: function () {
+        return { editDetails: false };
+    },
     onDeleteClick: function () {
         this.props.onDeleteSubmit(this.props.ReferenceId);
     },
-    onViewClick: function () {
-
+    onEditClick: function () {
+        this.setState({ editDetails: true });
+    },
+    onSaveClick: function () {
+        var id = this.state.referenceItemId;
+        var name = this.state.referenceItemName;
+        var cite = this.state.referenceItemCite;
+        if (name && cite && id) {
+            
+        }
+        this.setState({ editDetails: false });
+    },
+    handleReferenceItemCiteChanged: function (e) {
+        this.setState({ referenceItemName: e.target.value });
+    },
+    handleReferenceItemNmeChanged: function (e) {
+        this.setState({ referenceItemCite: e.target.value });
     },
     render: function () {
         var actionButtons = (
                    <div></div>
+        );
+        var itemDetails = (
+            <ReferenceListItemView
+                name={this.props.name}
+                cite={this.props.cite}
+            />
             );
-        if (EditorEvents.isLoggedIn) {
-            actionButtons = (
-                <div>
-                    <input type="submit" onClick={this.onViewClick} value="View" />
-                    <input type="submit" onClick={this.onDeleteClick} value="delete"/>
-                </div>
+        if (this.state.editDetails) {
+            itemDetails = (
+                <ReferenceListItemEdit
+                    id={this.props.id}
+                    name={this.props.name}
+                    onReferenceItemNameChanged={this.handleReferenceItemNameChanged}
+                    cite={this.props.cite}
+                    onReferenceItemCiteChanged={this.handleReferenceItemCiteChanged}
+                />
             );
         }
+        if (EditorEvents.isLoggedIn) {
+            if (this.state.editDetails) {
+                actionButtons = (
+                    <div>
+                        <input type="submit" onClick={this.onSaveClick} value="Save"/>
+                        <input type="submit" onClick={this.onDeleteClick} value="Delete"/>
+                    </div>
+                );
+            } else {
+                actionButtons = (
+                    <div>
+                        <input type="submit" onClick={this.onEditClick} value="Edit"/>
+                    </div>
+                );
+            }
+        }
         return (
-            <div>
-                <b>{this.props.name}</b>
-                {this.props.cite}
+            <div >
+                {itemDetails}
                 {actionButtons}
             </div>
             );
@@ -35,10 +107,12 @@ var ReferenceList = React.createClass({
             {
                 return (
                     <ReferenceListItem ReferenceId={reference.ReferenceId}
-                                        onDeleteSubmit={self.props.onHandleDeleteReferenceFromList}
-                                        key={reference.ReferenceId}
-                                        name={reference.Name} 
-                                        cite={reference.Cite}>
+                                       onDeleteSubmit={self.props.onHandleDeleteReferenceFromList}
+                                       onSaveSubmit={self.props.onHandleSaveReferenceFromList}
+                                       key={reference.ReferenceId}
+                                       id={reference.ReferenceId}
+                                       name={reference.Name} 
+                                       cite={reference.Cite}>
                     </ReferenceListItem>
                 );
             }
@@ -55,27 +129,44 @@ var ReferenceList = React.createClass({
 });
 
 var ReferenceBox = React.createClass({
-    loadReferencesFromServer: function() {
-        var xhr = new XMLHttpRequest();
-        xhr.open('get', this.props.referenceUrl, true);
-        xhr.onload = function() {
-            var data = JSON.parse(xhr.responseText);
-            this.setState({ referenceData: data });
-            EditorEvents.references = data;
-        }.bind(this);
-        xhr.send();
+    loadReferencesFromServer: function () {
+        if (this.props.referenceUrl) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('get', this.props.referenceUrl, true);
+            xhr.onload = function() {
+                var data = JSON.parse(xhr.responseText);
+                this.setState({ referenceData: data });
+                EditorEvents.references = data;
+            }.bind(this);
+            xhr.send();
+        }
+    },
+    handleSaveReferenceFromList: function (reference) {
+        if (this.props.saveUrl) {
+            var data = new FormData();
+            data.append('ReferenceId', reference.ReferenceId);
+            data.append('Name', reference.Name);
+            data.append('Cite', reference.Cite);
+            var xhr = new XMLHttpRequest();
+            xhr.open('post', this.props.submitUrl, true);
+            xhr.onload = function () {
+                this.loadReferencesFromServer();
+            }.bind(this);
+            xhr.send(data);
+        }
     },
     handleDeleteReferenceFromList: function (reference) {
         if (confirm("Really delete this reference?")) {
             var data = new FormData();
             data.append('ReferenceId', reference.ReferenceId);
-
-            var xhr = new XMLHttpRequest();
-            xhr.open('post', this.props.deleteUrl, true);
-            xhr.onload = function () {
-                this.loadHypothesissFromServer();
-            }.bind(this);
-            xhr.send(data);
+            if (this.props.deleteUrl) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('post', this.props.deleteUrl, true);
+                xhr.onload = function() {
+                    this.loadReferencesFromServer();
+                }.bind(this);
+                xhr.send(data);
+            }
         }
     },
     onFilterClick: function() {
@@ -97,13 +188,8 @@ var ReferenceBox = React.createClass({
                 <input style={this.textboxStyle} type="text" placeholder="Filter References" onChange={this.handleFilterChange} />
                 <input type="submit" onClick={this.onFilterClick} value="Filter" />
                 <br />
-                <ReferenceList referenceData={this.state.referenceData} onHandleDeleteReferenceFromList={this.handleDeleteReferenceFromList}/>
+                <ReferenceList referenceData={this.state.referenceData} onHandleDeleteReferenceFromList={this.handleDeleteReferenceFromList} onHandleSaveReferenceFromList={this.handleSaveReferenceFromList}/>
             </div>
         );
     }
 });
-
-ReactDOM.render(
-    <ReferenceBox referenceUrl="references" referenceSubmitUrl="references/new" deleteUrl="references/delete" pollInterval={60000} />,
-    document.getElementById('referencesFilterContent')
-);
