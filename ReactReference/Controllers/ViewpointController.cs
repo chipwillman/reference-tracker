@@ -32,6 +32,13 @@ namespace ReactReference.Controllers
         }
 
         [HttpPost]
+        public ActionResult SaveViewpoint(ViewPoint viewPoint)
+        {
+            new SqlRepository().SaveViewpoint(viewPoint);
+            return Content("Viewpoint Saved");
+        }
+
+        [HttpPost]
         public ActionResult DeleteViewpoint(ViewPoint viewPoint)
         {
             new SqlRepository().DeleteViewPoint(viewPoint);

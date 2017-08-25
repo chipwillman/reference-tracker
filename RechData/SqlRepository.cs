@@ -73,7 +73,11 @@ ORDER BY Name
 SELECT TOP {0} 
     HypothesisID,
     RTRIM(Name) as Name,
-    Description
+    FactionID,
+    ViewpointID,
+    Description,
+    BeginDate,
+    EndDate
 FROM Hypothesis
 ORDER BY Name
 ", count)).ToArray();
@@ -151,6 +155,32 @@ ORDER BY Name
             }
             return false;
         }
+
+        public bool SaveViewpoint(ViewPoint viewPoint)
+        {
+            using (var connection = new SqlConnection(System.Configuration.ConfigurationManager
+                .ConnectionStrings["DefaultConnection"].ConnectionString))
+            {
+                string sql = @"UPDATE 
+    ViewPoint 
+SET 
+    Name = @Name,
+    Description = @Description,
+    BeginDate = @BeginDate,
+    EndDate = @EndDate
+WHERE
+    ViewPointId = @ViewPointId
+;";
+
+                var rowsAffected = connection.Query<int>(sql, viewPoint).SingleOrDefault();
+                if (rowsAffected > 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
 
         public bool DeleteViewPoint(ViewPoint viewPoint)
         {

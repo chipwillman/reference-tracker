@@ -142,7 +142,9 @@ var HypothesisBox = React.createClass({
             xhr.open('get', this.props.hypothesisUrl, true);
             xhr.onload = function() {
                 var data = JSON.parse(xhr.responseText);
+                EditorEvents.hypothesis = data;
                 this.setState({ data: data });
+                EditorEvents.viewpointsChanged();
             }.bind(this);
             xhr.send();
         }

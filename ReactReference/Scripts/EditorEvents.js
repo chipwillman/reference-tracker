@@ -1,11 +1,26 @@
 ﻿var EditorEvents = {
     factions: [],
     references: [],
+    viewpoints: [],
+    hypothesis: [],
     editViewPoint: function(viewPointId) {
         alert("Editor not assigned");
     },
     editHypothesis: function(hypothesisId) {
         alert("Editor not assigned");
+    },
+    viewpointsChanged: function() {
+        alert('Viewpoint Changed handler not assigned');
+    },
+    factionSelected: function(factionId, selected) {
+        for (var i = 0; i < this.factions.length; i++) {
+            var faction = this.factions[i];
+            if (faction.FactionId === factionId) {
+                faction.selected = selected;
+                break;
+            }
+        }
+        this.viewpointsChanged();
     },
     isLoggedIn: document.getElementById("logoutForm"),
     findReference: function(referenceId) {

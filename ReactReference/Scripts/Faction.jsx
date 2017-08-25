@@ -15,6 +15,7 @@
         } else {
             this.setState({ isSelected: false });
         }
+        EditorEvents.factionSelected(this.props.factionId, currentValue);
     },
     handleDeleteClick: function(e) {
         e.preventDefault();
@@ -31,12 +32,12 @@
         }
 
         var divStyle = {
-            background: '#008888',
+            background: '#008800',
             padding: '10px',
             margin: '10px'
         };
         if (this.state.isSelected || this.state.hover_flag) {
-            divStyle['background'] = "#008800";
+            divStyle['background'] = "#008888";
         }
         return (
             <div
@@ -107,8 +108,7 @@ var FactionForm = React.createClass({
     render: function() {
         return (
             <form className="factionForm" onSubmit={this.handleSubmit}>
-                <input type="text" placeholder="Faction Name" value={this.state.Name} onChange={this.handleNameChange
-}/>
+                <input type="text" placeholder="Faction Name" value={this.state.Name} onChange={this.handleNameChange}/>
                 <textarea placeholder="Faction Description..." value={this.state.Description} onChange={this
                     .handleDescriptionChange}/>
                 <br/>

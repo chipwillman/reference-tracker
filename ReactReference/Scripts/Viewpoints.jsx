@@ -55,7 +55,6 @@
 
 var ViewpointList = React.createClass({
     render: function() {
-        var self = this;
         var ViewpointNodes = this.props.data.map(function(Viewpoint) {
             if (Viewpoint.ViewPointId !== '') {
                 return (
@@ -130,7 +129,9 @@ var ViewpointBox = React.createClass({
             xhr.open('get', this.props.viewPointUrl, true);
             xhr.onload = function() {
                 var data = JSON.parse(xhr.responseText);
+                EditorEvents.viewpoints = data;
                 this.setState({ data: data });
+                EditorEvents.viewpointsChanged();
             }.bind(this);
             xhr.send();
         }

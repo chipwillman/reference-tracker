@@ -87,6 +87,12 @@ namespace ReactReference
             );
 
             routes.MapRoute(
+                name: "SaveViewpoint",
+                url: "viewpoints/save",
+                defaults: new { controller = "Viewpoint", action = "SaveViewpoint" }
+            );
+
+            routes.MapRoute(
                 name: "DeleteViewpoint",
                 url: "viewpoints/delete",
                 defaults: new { controller = "Viewpoint", action = "DeleteViewpoint" }

@@ -409,7 +409,7 @@ var ViewpointEvidenceEditor = React.createClass({
 
 var ViewpointEditor = React.createClass({
     getInitialState: function() {
-        return { show: false, viewpointId: '', editDetails: false, editorViewpoint: { Name: 'Loading', Evidence: [], References: [] } };
+        return { show: false, viewpointId: '', editDetails: false, name: 'Loading', editorViewpoint: { Name: 'Loading', Evidence: [], References: [] } };
     },
     CancelEdit(e) {
         this.setState({ editDetails: false });
@@ -417,9 +417,34 @@ var ViewpointEditor = React.createClass({
     CloseEdit(e) {
         this.setState({ show: false });
     },
-    SaveViewPoint(e) {
+    handleBeginDateChange: function (e) {
+        this.setState({ beginDate: e.target.value });
+    },
+    handleDescriptionChange: function (e) {
+        this.setState({ description: e.target.value });
+    },
+    handleEndDateChange: function (e) {
+        this.setState({ endDate: e.target.value });
+    },
+    handleNameChange: function (e) {
+        this.setState({ name: e.target.value });
+    },
+    SaveViewPoint: function() {
         this.setState({ editDetails: false });
-        //TODO Save Viewpoint Changes
+        var data = new FormData();
+        data.append('ViewPointId', this.state.viewpointId);
+        data.append('BeginDate', this.state.beginDate);
+        data.append('EndDate', this.state.endDate);
+        data.append('Description', this.state.description);
+        data.append('Name', this.state.name);
+        if (this.props.submitViewpointUrl) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('post', this.props.submitViewpointUrl, true);
+            xhr.onload = function () {
+                this.CloseEdit();
+            }.bind(this);
+            xhr.send(data);
+        }
     },
     DeleteViewpoint: function () {
         if (confirm("Really delete this viewpoint?")) {
@@ -441,6 +466,10 @@ var ViewpointEditor = React.createClass({
     },
     SetViewpoint(viewpoint) {
         this.setState({ editorViewpoint: viewpoint });
+        this.setState({ beginDate: viewpoint.BeginDate });
+        this.setState({ endDate: viewpoint.EndDate });
+        this.setState({ description: viewpoint.Description });
+        this.setState({ name: viewpoint.Name });
     },
     LoadViewpoint(viewpointId) {
         if (this.props.viewPointUrl) {
@@ -509,18 +538,18 @@ var ViewpointEditor = React.createClass({
             );
         var contentPanel = (
             <div>
-                <h2>{this.state.editorViewpoint.Name}</h2>
-                    <div>Begin Date: {this.state.editorViewpoint.BeginDate} End Date: {this.state.editorViewpoint.EndDate}</div>
-                <p>{this.state.editorViewpoint.Description}</p>
+                <h2>{this.state.name}</h2>
+                    <div>Begin Date: {this.state.beginDate} End Date: {this.state.endDate}</div>
+                <p>{this.state.description}</p>
             </div>
             );
         if (this.state.editDetails) {
             contentPanel = (
                 <div>
-                    <h2><input type="text" value={this.state.editorViewpoint.Name}/></h2>
-                    <div>Begin Date: <input type="text" value = {this.state.editorViewpoint.BeginDate} />
-                         End Date: <input type="text" value = {this.state.editorViewpoint.EndDate} /></div>
-                    <p><textarea id="viewPointDescription">{this.state.editorViewpoint.Description}</textarea></p>
+                    <h2><input type="text" defaultValue={this.state.name} onChange={this.handleNameChange}/></h2>
+                    <div>Begin Date: <input type="text" defaultValue={this.state.beginDate} onChange={this.handleBeginDateChange}/>
+                        End Date: <input type="text" defaultValue={this.state.endDate} onChange={this.handleEndDateChange}/></div>
+                    <p><textarea id="viewPointDescription" onChange={this.handleDescriptionChange} defaultValue={this.state.description}/></p>
                 </div>
                 );
         }
