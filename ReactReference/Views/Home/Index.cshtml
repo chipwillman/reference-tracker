@@ -4,17 +4,18 @@
 <div class="ReferenceChecker">
     <div id="visualization">
         <div class="menu">
-            <input type="button" id="zoomIn" value="Zoom in"/>
-            <input type="button" id="zoomOut" value="Zoom out"/>
-            <input type="button" id="moveLeft" value="Move left"/>
-            <input type="button" id="moveRight" value="Move right"/>
-            <input type="button" id="toggleRollingMode" value="toggleRollingMode"/>
+            <input type="button" id="zoomIn" value="Zoom in" />
+            <input type="button" id="zoomOut" value="Zoom out" />
+            <input type="button" id="moveLeft" value="Move left" />
+            <input type="button" id="moveRight" value="Move right" />
+            <input type="button" id="toggleRollingMode" value="toggleRollingMode" />
         </div>
     </div>
 
     <div class="jumbotron">
         <h1>Timeline of Events</h1>
         <div id="timelineContent"></div>
+        <canvas id="springydemo" width="640" height="480" />
         <p class="lead">A view of events in ordered fashion</p>
     </div>
     <div class="row">
@@ -47,13 +48,21 @@
         <div id="hypothesisEditorContent"></div>
     </div>
 </div>
+<script scr="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.2/react.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.2/react-dom.js"></script>
+
 @*<script src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.1/remarkable.min.js"></script>*@
 
-<script src="@Url.Content("~/Scripts/vis.js")" ></script>
+
+<script src="@Url.Content("~/Scripts/vis.js")"></script>
 <script src="@Url.Content("~/Scripts/EditorEvents.js")"></script>
-<script src="@Url.Content("~/Scripts/Timeline.js")"></script>
+<script src="@Url.Content("~/Scripts/springy.js")"></script>
+<script src="@Url.Content("~/Scripts/springyui.js")"></script>
+<script scr="@Url.Content(" ~/ViewpointViewer.js")"></script>
+
+@*<script src="@Url.Content("~/Scripts/Timeline.js")"></script>*@
 <script src="@Url.Content("~/Scripts/ViewpointEditor.jsx")"></script>
 <script src="@Url.Content("~/Scripts/HypothesisEditor.jsx")"></script>
 <script src="@Url.Content("~/Scripts/Faction.jsx")"></script>

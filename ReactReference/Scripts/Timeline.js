@@ -33,9 +33,9 @@
             timeline.push({
                 id: viewpoint.ViewPointId,
                 content: viewpoint.Name,
-                start: Timeline.formatDate(viewpoint.BeginDate),
+                start: viewpoint.BeginDate,
                 group: 0,
-                end: null //Timeline.formatDate(viewpoint.EndDate)
+                end: viewpoint.EndDate
             });
         }
 
@@ -44,7 +44,7 @@
             timeline.push({
                 id: hypothesis.HypothesisId,
                 content: hypothesis.Name,
-                start: Timeline.formatDate(hypothesis.BeginDate),
+                start: hypothesis.BeginDate,
                 group: hypothesis.FactionId
             });
         }
@@ -62,6 +62,7 @@
                 end: new Date(1200, 1, 1),
                 groupOrder: 'content'
             };
+
             var timeline = new vis.Timeline(container, items, options);
             var groups = new vis.DataSet();
             groups.add({ id: 0, content: "Mainstream" });

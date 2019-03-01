@@ -501,7 +501,10 @@
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Content\vis-timeline-graph2d.min.css" />
+    <Content Include="Scripts\springy.js" />
+    <Content Include="Scripts\springyui.js" />
     <Content Include="Scripts\Timeline.js" />
+    <Content Include="Scripts\ViewpointViewer.jsx" />
     <Content Include="Scripts\vis.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="Web.config">
